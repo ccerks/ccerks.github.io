@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial ETL Pipeline | AWS Serverless Data Engineering</title>
+    <meta name="description" content="A fully automated, Serverless data engineering pipeline on AWS Lambda. Extracts multi-asset financial data, validates with Pydantic, stores in PostgreSQL, and visualizes with Streamlit.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05080f;
+            --bg-card: #0c1220;
+            --bg-glass: rgba(12, 18, 32, 0.85);
+            --accent: #00d4aa;
+            --accent-2: #00a8ff;
+            --accent-gradient: linear-gradient(135deg, #00d4aa, #00a8ff);
+            --glow: 0 0 30px rgba(0, 212, 170, 0.25);
+            --border: rgba(0, 212, 170, 0.15);
+            --text: #e2e8f0;
+            --text-muted: #64748b;
+            --text-secondary: #94a3b8;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ── Ambient Glows ── */
+        .glow-1 {
+            position: fixed; top: -200px; left: -200px;
+            width: 600px; height: 600px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,212,170,0.07) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+        .glow-2 {
+            position: fixed; bottom: -200px; right: -200px;
+            width: 700px; height: 700px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,168,255,0.06) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── Nav ── */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 48px; height: 68px; z-index: 100;
+            background: transparent;
+            transition: background 0.3s, border-color 0.3s;
+            border-bottom: 1px solid transparent;
+        }
+        nav.scrolled {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700; font-size: 1.3rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links { display: flex; gap: 8px; align-items: center; }
+        .nav-links a {
+            padding: 8px 16px; color: var(--text-secondary);
+            font-size: 0.95rem; font-weight: 500;
+            text-decoration: none; border-radius: 8px;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--text); }
+
+        .btn-nav {
+            padding: 10px 22px; border-radius: 10px;
+            background: var(--accent-gradient);
+            color: #05080f; font-weight: 700; font-size: 0.9rem;
+            text-decoration: none;
+            transition: opacity 0.3s, transform 0.2s;
+            box-shadow: var(--glow);
+        }
+        .btn-nav:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* ── Hero ── */
+        header {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 120px 48px 80px;
+            position: relative; text-align: center;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 18px; border-radius: 30px;
+            border: 1px solid var(--border);
+            background: rgba(0,212,170,0.07);
+            font-size: 0.8rem; color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 28px; letter-spacing: 0.5px;
+        }
+        .badge-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        h1 {
+            font-size: clamp(2.6rem, 6vw, 4.5rem);
+            font-weight: 900; line-height: 1.08;
+            letter-spacing: -2px; color: var(--text);
+            max-width: 900px; margin-bottom: 24px;
+        }
+        h1 span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-desc {
+            font-size: 1.15rem; color: var(--text-secondary);
+            max-width: 680px; line-height: 1.8; margin-bottom: 40px;
+        }
+        .hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .btn-primary {
+            padding: 14px 30px; border-radius: 12px;
+            background: var(--accent-gradient);
+            color: #05080f; font-weight: 700; font-size: 1rem;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: var(--glow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(0,212,170,0.4); }
+        .btn-secondary {
+            padding: 14px 30px; border-radius: 12px;
+            border: 1px solid var(--border); color: var(--text);
+            font-weight: 600; font-size: 1rem;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+            transition: border-color 0.3s, color 0.3s;
+        }
+        .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Terminal Mock ── */
+        .terminal {
+            margin-top: 60px; width: 100%; max-width: 700px;
+            background: #070d18; border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5), var(--glow);
+            overflow: hidden; text-align: left;
+        }
+        .terminal-header {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 18px; background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid var(--border);
+        }
+        .td { width: 12px; height: 12px; border-radius: 50%; }
+        .td.r { background: #ff5f57; }
+        .td.y { background: #ffbd2e; }
+        .td.g { background: #27c93f; }
+        .terminal-title { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-muted); margin-left: 8px; }
+        .terminal-body {
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem; line-height: 1.9;
+        }
+        .tc { color: var(--text-muted); }
+        .tg { color: #27c93f; }
+        .ta { color: var(--accent); }
+        .tw { color: #e2e8f0; }
+        .ty { color: #fbbf24; }
+
+        /* ── Stats ── */
+        .stats {
+            display: flex; justify-content: center; gap: 48px;
+            margin-top: 64px; flex-wrap: wrap;
+        }
+        .stat { text-align: center; }
+        .stat-val {
+            font-size: 2.8rem; font-weight: 900;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block; line-height: 1;
+        }
+        .stat-lbl { font-size: 0.82rem; color: var(--text-muted); margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ── Section common ── */
+        section { padding: 100px 48px; position: relative; }
+        .content-wrapper { max-width: 1100px; margin: 0 auto; }
+        .section-label {
+            font-size: 0.8rem; color: var(--accent); font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .section-title {
+            font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 800;
+            color: var(--text); margin-bottom: 16px; letter-spacing: -1px;
+        }
+        .section-subtitle {
+            font-size: 1.05rem; color: var(--text-secondary);
+            max-width: 680px; line-height: 1.8; margin-bottom: 56px;
+        }
+
+        /* ── Architecture Flow ── */
+        .arch-flow {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0; flex-wrap: wrap;
+        }
+        .arch-node {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 10px; padding: 20px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px; min-width: 130px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .arch-node:hover { border-color: var(--accent); transform: translateY(-4px); }
+        .arch-icon { font-size: 2rem; }
+        .arch-name { font-size: 0.78rem; font-weight: 600; color: var(--text); text-align: center; }
+        .arch-sub { font-size: 0.68rem; color: var(--text-muted); text-align: center; font-family: 'JetBrains Mono', monospace; }
+        .arch-arrow {
+            color: var(--accent); font-size: 1.4rem; padding: 0 8px;
+            opacity: 0.6;
+        }
+
+        /* ── Features Grid ── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .feat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+        .feat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(0,212,170,0.1);
+        }
+        .feat-icon { font-size: 2rem; margin-bottom: 14px; }
+        .feat-title { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+        .feat-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; }
+
+        /* ── Tech Stack ── */
+        .stack-section { background: rgba(0,212,170,0.02); }
+        .stack-grid {
+            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+        }
+        .stack-item {
+            padding: 10px 22px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px; font-size: 0.9rem;
+            color: var(--text-secondary); font-weight: 500;
+            transition: border-color 0.3s, color 0.3s;
+        }
+        .stack-item:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Roadmap ── */
+        .roadmap { display: flex; flex-direction: column; gap: 16px; max-width: 700px; margin: 0 auto; }
+        .rm-item {
+            display: flex; align-items: flex-start; gap: 16px;
+            padding: 18px 22px; border-radius: 12px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            transition: border-color 0.3s;
+        }
+        .rm-item.done { border-color: rgba(0,212,170,0.3); }
+        .rm-item.done:hover { border-color: var(--accent); }
+        .rm-item.todo { opacity: 0.6; }
+        .rm-check {
+            width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; margin-top: 1px;
+        }
+        .rm-check.done { background: rgba(0,212,170,0.2); color: var(--accent); border: 1px solid var(--accent); }
+        .rm-check.todo { background: rgba(100,116,139,0.15); color: var(--text-muted); border: 1px solid var(--text-muted); }
+        .rm-text { font-size: 0.95rem; color: var(--text); }
+        .rm-text span { display: block; font-size: 0.82rem; color: var(--text-muted); margin-top: 3px; }
+
+        /* ── CTA ── */
+        .cta-section {
+            text-align: center;
+            background: radial-gradient(ellipse at 50% 50%, rgba(0,212,170,0.06) 0%, transparent 70%);
+        }
+        .cta-section h2 { font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight: 800; margin-bottom: 16px; }
+        .cta-section p { color: var(--text-secondary); font-size: 1.05rem; margin-bottom: 36px; }
+        .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center; padding: 28px 48px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted); font-size: 0.85rem;
+        }
+        footer a { color: var(--accent); text-decoration: none; }
+
+        /* ── Animations ── */
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            nav { padding: 0 24px; }
+            .nav-links { display: none; }
+            header, section { padding-left: 24px; padding-right: 24px; }
+            .features-grid { grid-template-columns: 1fr 1fr; }
+            .arch-flow { gap: 8px; }
+            .arch-arrow { display: none; }
+        }
+        @media (max-width: 600px) {
+            .features-grid { grid-template-columns: 1fr; }
+            .stats { gap: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+
+    <nav id="navbar">
+        <div class="nav-logo">ETL.Finance</div>
+        <div class="nav-links">
+            <a href="#architecture">Architecture</a>
+            <a href="#features">Features</a>
+            <a href="#stack">Tech Stack</a>
+            <a href="#roadmap">Roadmap</a>
+            <a href="https://ccerks.github.io" style="color: var(--text-secondary);">← Portfolio</a>
+        </div>
+        <a href="https://ccerks-etl-financeiro.streamlit.app" target="_blank" class="btn-nav">Live Dashboard →</a>
+    </nav>
+
+    <header>
+        <div class="hero-badge">
+            <span class="badge-dot"></span>
+            v1.0 &mdash; AWS Serverless &bull; Running Daily
+        </div>
+        <h1>The automated pipeline for<br><span>financial intelligence.</span></h1>
+        <p class="hero-desc">
+            A fully serverless data engineering pipeline deployed on AWS Lambda. Extracts multi-asset financial data daily from CoinGecko & Yahoo Finance, enforces Pydantic data contracts, and delivers interactive analytics via Streamlit.
+        </p>
+        <div class="hero-cta">
+            <a href="https://ccerks-etl-financeiro.streamlit.app" target="_blank" class="btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m18.7 8-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+                Open Live Dashboard
+            </a>
+            <a href="https://github.com/ccerks/etl-financeiro" target="_blank" class="btn-secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                View Source
+            </a>
+        </div>
+
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="td r"></div><div class="td y"></div><div class="td g"></div>
+                <span class="terminal-title">aws-lambda &mdash; etl-financeiro &mdash; daily_run.log</span>
+            </div>
+            <div class="terminal-body">
+                <span class="tc"># EventBridge trigger: 08:00 UTC daily</span><br>
+                <span class="tw">assets = <span class="ta">['BTC', 'ETH', 'SOL', 'ADA', 'S&P500', 'GOLD', 'USD/BRL', 'USD/EUR']</span></span><br><br>
+                <span class="tg">✔</span> <span class="tw">CoinGecko API</span> <span class="tc">— 28 records extracted</span><br>
+                <span class="tg">✔</span> <span class="tw">Yahoo Finance API</span> <span class="tc">— 19 records extracted</span><br>
+                <span class="tg">✔</span> <span class="tw">Pydantic validation</span> <span class="tc">— 47/47 contracts: PASS</span><br>
+                <span class="tg">✔</span> <span class="tw">Supabase PostgreSQL</span> <span class="tc">— 47 rows loaded</span><br>
+                <span class="tg">✔</span> <span class="tw">Idempotency check</span> <span class="tc">— 0 duplicates rejected</span><br>
+                <span class="tg">✔</span> <span class="tw">Discord alert</span> <span class="tc">— pipeline success notified</span><br><br>
+                <span class="ty">Duration: 4.2s | Memory: 128MB | Cost: $0.0001</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat"><span class="stat-val">8</span><div class="stat-lbl">Assets Tracked</div></div>
+            <div class="stat"><span class="stat-val">Daily</span><div class="stat-lbl">Auto Execution</div></div>
+            <div class="stat"><span class="stat-val">&lt;5s</span><div class="stat-lbl">Pipeline Runtime</div></div>
+            <div class="stat"><span class="stat-val">100%</span><div class="stat-lbl">Idempotent</div></div>
+        </div>
+    </header>
+
+    <!-- Architecture -->
+    <section id="architecture">
+        <div class="content-wrapper">
+            <div class="section-label">02. Architecture</div>
+            <h2 class="section-title">End-to-End Serverless Flow</h2>
+            <p class="section-subtitle">Each step of the pipeline is decoupled and independently scalable on AWS infrastructure.</p>
+
+            <div class="arch-flow">
+                <div class="arch-node">
+                    <div class="arch-icon">⏰</div>
+                    <div class="arch-name">EventBridge</div>
+                    <div class="arch-sub">Cron Trigger<br>08:00 UTC</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-node">
+                    <div class="arch-icon">λ</div>
+                    <div class="arch-name">AWS Lambda</div>
+                    <div class="arch-sub">Python 3.10<br>Docker / ECR</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-node">
+                    <div class="arch-icon">📡</div>
+                    <div class="arch-name">Data Sources</div>
+                    <div class="arch-sub">CoinGecko<br>Yahoo Finance</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-node">
+                    <div class="arch-icon">🔎</div>
+                    <div class="arch-name">Pydantic</div>
+                    <div class="arch-sub">Data Contracts<br>Row Validation</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-node">
+                    <div class="arch-icon">🗄️</div>
+                    <div class="arch-name">Supabase</div>
+                    <div class="arch-sub">PostgreSQL<br>+ SQL Views</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-node">
+                    <div class="arch-icon">📈</div>
+                    <div class="arch-name">Streamlit</div>
+                    <div class="arch-sub">Plotly Dashboard<br>Live Analytics</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" style="background: rgba(0,212,170,0.02);">
+        <div class="content-wrapper">
+            <div class="section-label">03. Engineering Features</div>
+            <h2 class="section-title">Built for Reliability</h2>
+            <p class="section-subtitle">Production-grade patterns applied to a real data engineering challenge.</p>
+
+            <div class="features-grid">
+                <div class="feat-card">
+                    <div class="feat-icon">☁️</div>
+                    <div class="feat-title">AWS Serverless Architecture</div>
+                    <div class="feat-desc">Containerized with Docker and deployed to AWS Lambda via ECR. Scheduled via Amazon EventBridge for zero-infrastructure cost execution — you pay only per invocation.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">🔎</div>
+                    <div class="feat-title">Pydantic Data Contracts</div>
+                    <div class="feat-desc">Every row extracted from external APIs is validated row-by-row through strict Pydantic models before any database write. Bad data never reaches storage.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">🔁</div>
+                    <div class="feat-title">Idempotent Pipeline</div>
+                    <div class="feat-desc">Enforced by composite unique constraints in PostgreSQL (asset + date). Re-running the pipeline safely rejects duplicates without breaking data integrity.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">📊</div>
+                    <div class="feat-title">SQL View Optimization</div>
+                    <div class="feat-desc">Pre-calculated metrics (7-day moving averages, delta percentages) are computed directly in PostgreSQL Views, offloading analytics from Python to the database engine.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">🔔</div>
+                    <div class="feat-title">Real-Time Discord Alerts</div>
+                    <div class="feat-desc">Every pipeline execution sends an observability webhook to Discord — success metrics, record counts, and full error stack traces in case of failure. No silent failures.</div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon">🪙</div>
+                    <div class="feat-title">Multi-Market Intelligence</div>
+                    <div class="feat-desc">Handles both 24/7 crypto markets (BTC, ETH, SOL, ADA) and traditional exchange-hour assets (S&P 500, Gold, USD/BRL, USD/EUR) with proper granularity synchronization.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section id="stack">
+        <div class="content-wrapper" style="text-align:center;">
+            <div class="section-label">04. Tech Stack</div>
+            <h2 class="section-title">Powered by Modern Data Tools</h2>
+            <p class="section-subtitle" style="margin: 0 auto 48px;">Every component selected for scalability, reliability, and cost efficiency.</p>
+            <div class="stack-grid">
+                <div class="stack-item">Python 3.10</div>
+                <div class="stack-item">AWS Lambda</div>
+                <div class="stack-item">Amazon ECR</div>
+                <div class="stack-item">Amazon EventBridge</div>
+                <div class="stack-item">Docker</div>
+                <div class="stack-item">Pydantic</div>
+                <div class="stack-item">SQLAlchemy</div>
+                <div class="stack-item">Pandas</div>
+                <div class="stack-item">Supabase PostgreSQL</div>
+                <div class="stack-item">CoinGecko API</div>
+                <div class="stack-item">yfinance</div>
+                <div class="stack-item">Streamlit</div>
+                <div class="stack-item">Plotly</div>
+                <div class="stack-item">Discord Webhooks</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap -->
+    <section id="roadmap" style="background: rgba(0,212,170,0.02);">
+        <div class="content-wrapper" style="text-align:center;">
+            <div class="section-label">05. Roadmap</div>
+            <h2 class="section-title">Development Milestones</h2>
+            <p class="section-subtitle" style="margin: 0 auto 48px;">A full data engineering lifecycle from prototype to cloud production.</p>
+
+            <div class="roadmap">
+                <div class="rm-item done">
+                    <div class="rm-check done">✓</div>
+                    <div class="rm-text">Multi-asset extraction & PostgreSQL integration<span>CoinGecko + Yahoo Finance APIs with Supabase storage</span></div>
+                </div>
+                <div class="rm-item done">
+                    <div class="rm-check done">✓</div>
+                    <div class="rm-text">Batch processing & Rate Limit handling<span>API optimization for high-volume asset extraction</span></div>
+                </div>
+                <div class="rm-item done">
+                    <div class="rm-check done">✓</div>
+                    <div class="rm-text">Real-time error alerting via Discord Webhooks<span>Full observability with execution metrics & stack traces</span></div>
+                </div>
+                <div class="rm-item done">
+                    <div class="rm-check done">✓</div>
+                    <div class="rm-text">Performance optimization with PostgreSQL Views<span>Moved metric calculations from Python to database engine</span></div>
+                </div>
+                <div class="rm-item done">
+                    <div class="rm-check done">✓</div>
+                    <div class="rm-text">Pydantic Data Contracts & Pandas validation<span>Row-level quality enforcement before any database write</span></div>
+                </div>
+                <div class="rm-item done">
+                    <div class="rm-check done">✓</div>
+                    <div class="rm-text">Idempotency via Composite Primary Keys<span>Safe re-runs with zero duplicate data</span></div>
+                </div>
+                <div class="rm-item done">
+                    <div class="rm-check done">✓</div>
+                    <div class="rm-text">Medallion Architecture (Bronze Layer)<span>Data lineage and structured ingestion pattern</span></div>
+                </div>
+                <div class="rm-item done">
+                    <div class="rm-check done">✓</div>
+                    <div class="rm-text">Cloud Serverless Migration<span>Containerized with Docker → AWS Lambda + ECR deployment</span></div>
+                </div>
+                <div class="rm-item todo">
+                    <div class="rm-check todo">○</div>
+                    <div class="rm-text">Intra-day granularity upgrade<span>Migrate from Daily (Date) to Intra-day (Timestamp) for candlestick charting</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="content-wrapper">
+            <h2>Ready to explore the data?</h2>
+            <p>Access the live dashboard or review the architecture on GitHub.</p>
+            <div class="cta-btns">
+                <a href="https://ccerks-etl-financeiro.streamlit.app" target="_blank" class="btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m18.7 8-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+                    Open Live Dashboard
+                </a>
+                <a href="https://github.com/ccerks/etl-financeiro" target="_blank" class="btn-secondary">View on GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Architected and Developed by <a href="https://github.com/ccerks">Caio Cerqueira</a>. 2026. &nbsp;|&nbsp; <a href="https://ccerks.github.io">← Back to Portfolio</a></p>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 40);
+        });
+    </script>
+</body>
+</html>

@@ -11,19 +11,21 @@
 
     <div class="ambient-glow"></div>
     <div class="ambient-glow-2"></div>
+    <div class="ambient-glow-3"></div>
 
     <nav>
         <div class="logo">NexCore</div>
         <div class="nav-links">
-            <a href="#features" data-i18n="nav_features">Features</a>
-            <a href="#architecture" data-i18n="nav_architecture">Architecture</a>
+            <a href="#about" data-i18n="nav_about">The Engine</a>
+            <a href="#deep-dive" data-i18n="nav_deep_dive">Architecture</a>
+            <a href="#tech-stack" data-i18n="nav_tech">Tech Stack</a>
             <button id="lang-toggle" class="lang-btn">PT-BR</button>
         </div>
         <a href="https://nexcore-api.ccerks.com/docs" target="_blank" class="btn-primary" data-i18n="nav_cta">Explore API Docs</a>
     </nav>
 
     <header>
-        <div class="badge" data-i18n="hero_badge">v2.2.0 — Cloud Native API</div>
+        <div class="badge" data-i18n="hero_badge">v3.0.0 — Cloud Native API</div>
         <h1 data-i18n="hero_title">The enterprise backbone for <span>SaaS builders.</span></h1>
         <p class="hero-desc" data-i18n="hero_desc">A highly scalable, multi-tenant B2B backend architecture built with FastAPI, PostgreSQL, and deployed on AWS ECS Fargate.</p>
         
@@ -44,39 +46,97 @@
         </div>
     </header>
 
-    <section id="features" class="features">
-        <h2 class="section-title" data-i18n="features_title">Architected for Scale.</h2>
-        <div class="grid">
-            <div class="card">
-                <div class="card-icon">🗄️</div>
-                <h3 data-i18n="feat_1_title">Physical Data Isolation</h3>
-                <p data-i18n="feat_1_desc">True multi-tenancy. Every client gets their own dedicated PostgreSQL schema dynamically routed via middleware.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">💳</div>
-                <h3 data-i18n="feat_2_title">Stripe Billing Lifecycle</h3>
-                <p data-i18n="feat_2_desc">Fully automated webhook integrations handling subscriptions, renewals, and automated tenant suspensions.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">🌩️</div>
-                <h3 data-i18n="feat_3_title">Edge Security</h3>
-                <p data-i18n="feat_3_desc">Deployed on AWS Fargate with an Application Load Balancer, SSL certificates, and Cloudflare DNS protection.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">📊</div>
-                <h3 data-i18n="feat_4_title">Observability & APM</h3>
-                <p data-i18n="feat_4_desc">Real-time Prometheus metrics exposition tracking request latency, status codes, and HTTP method distributions.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">🛡️</div>
-                <h3 data-i18n="feat_5_title">Network Resilience</h3>
-                <p data-i18n="feat_5_desc">IdempotentRoute middleware backed by Redis caching guarantees financial operations are never duplicated during network retries.</p>
+    <!-- NEW SECTION: WHAT IS NEXCORE? -->
+    <section id="about" class="about-section">
+        <div class="content-wrapper">
+            <h2 class="section-title" data-i18n="about_title">More than an API. An Engine.</h2>
+            <p class="section-subtitle" data-i18n="about_subtitle">NexCore is not a simple CRUD application. It is a full-blown Multi-Tenant architecture designed to host thousands of independent businesses under a single codebase, guaranteeing absolute data isolation and zero downtime.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label" data-i18n="stat_1">Physical Isolation</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">< 50ms</div>
+                    <div class="stat-label" data-i18n="stat_2">Global Latency</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">Zero</div>
+                    <div class="stat-label" data-i18n="stat_3">Duplicate Charges</div>
+                </div>
             </div>
         </div>
     </section>
 
+    <!-- ARCHITECTURE DEEP DIVE -->
+    <section id="deep-dive" class="features">
+        <h2 class="section-title" data-i18n="deep_dive_title">Engineering Deep Dive</h2>
+        <div class="grid">
+            <div class="card detail-card">
+                <div class="card-icon">🗄️</div>
+                <h3 data-i18n="feat_1_title">Multi-Dimensional Database</h3>
+                <p data-i18n="feat_1_desc">NexCore replaces standard row-level security with physical schema isolation. Global entities live in the `public` schema, while each client receives an isolated PostgreSQL schema generated dynamically via Alembic. Zero risk of data leakage.</p>
+            </div>
+            <div class="card detail-card">
+                <div class="card-icon">🛡️</div>
+                <h3 data-i18n="feat_5_title">Network Resilience & Idempotency</h3>
+                <p data-i18n="feat_5_desc">Financial operations are strictly idempotent. We implemented a custom FastAPI APIRoute middleware backed by Redis distributed locks. If a client retries a checkout due to network lag, Redis intercepts and serves the cached response in <5ms, preventing double charges.</p>
+            </div>
+            <div class="card detail-card">
+                <div class="card-icon">💳</div>
+                <h3 data-i18n="feat_2_title">Event-Driven Billing</h3>
+                <p data-i18n="feat_2_desc">Fully asynchronous webhook architecture using Stripe. When an invoice fails or succeeds, NexCore updates tenant states instantly across global schemas and triggers Business Intelligence (BI) alerts via Discord.</p>
+            </div>
+            <div class="card detail-card">
+                <div class="card-icon">🌩️</div>
+                <h3 data-i18n="feat_3_title">Serverless Cloud Architecture</h3>
+                <p data-i18n="feat_3_desc">Deployed natively on AWS ECS Fargate for infinite horizontal scaling. Fronted by an Application Load Balancer and Cloudflare DNS/WAF for DDos protection, edge caching, and strict SSL/TLS encryption.</p>
+            </div>
+            <div class="card detail-card">
+                <div class="card-icon">📊</div>
+                <h3 data-i18n="feat_4_title">Real-Time Observability</h3>
+                <p data-i18n="feat_4_desc">Embedded Prometheus APM instrumentator exposing the `/metrics` endpoint. We track Python Garbage Collection, HTTP method distributions, and microsecond latencies to guarantee SLA compliances.</p>
+            </div>
+            <div class="card detail-card">
+                <div class="card-icon">⚡</div>
+                <h3 data-i18n="feat_6_title">Asynchronous Workers</h3>
+                <p data-i18n="feat_6_desc">Heavy workloads (like massive S3 multipart media uploads or cascading soft deletes) are offloaded to background workers via RabbitMQ, ensuring the primary API never blocks.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: TECH STACK -->
+    <section id="tech-stack" class="stack-section">
+        <h2 class="section-title" data-i18n="stack_title">Powered by Modern Tech</h2>
+        <div class="stack-container">
+            <div class="stack-item">Python 3.10</div>
+            <div class="stack-item">FastAPI</div>
+            <div class="stack-item">PostgreSQL</div>
+            <div class="stack-item">SQLAlchemy 2.0</div>
+            <div class="stack-item">Redis</div>
+            <div class="stack-item">RabbitMQ</div>
+            <div class="stack-item">Prometheus</div>
+            <div class="stack-item">Docker</div>
+            <div class="stack-item">AWS ECS Fargate</div>
+            <div class="stack-item">AWS ALB & S3</div>
+            <div class="stack-item">GitHub Actions CI/CD</div>
+            <div class="stack-item">Stripe SDK</div>
+        </div>
+    </section>
+
+    <!-- CALL TO ACTION -->
+    <section class="cta-section">
+        <h2 data-i18n="cta_title">Ready to see the code?</h2>
+        <p data-i18n="cta_desc">Test the live Swagger UI or review the architecture documentation on GitHub.</p>
+        <div class="cta-buttons">
+            <a href="https://nexcore-api.ccerks.com/docs" target="_blank" class="btn-primary" data-i18n="nav_cta">Explore API Docs</a>
+            <a href="https://github.com/ccerks/nexcore-saas-api" target="_blank" class="btn-secondary" data-i18n="cta_github">View Source Code</a>
+        </div>
+    </section>
+
     <footer>
-        <p data-i18n="footer_text">Engineered for high availability. NexCore SaaS Architecture.</p>
+        <p data-i18n="footer_text">Architected and Developed by Caio Cerqueira. 2026.</p>
     </footer>
 
     <script src="js/main.js"></script>

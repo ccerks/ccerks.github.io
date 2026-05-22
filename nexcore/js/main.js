@@ -1,7 +1,8 @@
 const translations = {
     "en": {
-        "nav_features": "Features",
-        "nav_architecture": "Architecture",
+        "nav_about": "The Engine",
+        "nav_deep_dive": "Architecture",
+        "nav_tech": "Tech Stack",
         "nav_cta": "Explore API Docs",
         "hero_badge": "v2.2.0 — Cloud Native API",
         "hero_title": "The enterprise backbone for <span>SaaS builders.</span>",
@@ -10,22 +11,38 @@ const translations = {
         "code_res_1": "✔ Tenant 'Acme Corp' provisioned successfully.",
         "code_res_2": "✔ PostgreSQL schema 'tenant_acme' created.",
         "code_res_3": "✔ Stripe Customer & Billing initialized.",
-        "features_title": "Architected for Scale.",
-        "feat_1_title": "Physical Data Isolation",
-        "feat_1_desc": "True multi-tenancy. Every client gets their own dedicated PostgreSQL schema dynamically routed via middleware.",
-        "feat_2_title": "Stripe Billing Lifecycle",
-        "feat_2_desc": "Fully automated webhook integrations handling subscriptions, renewals, and automated tenant suspensions.",
-        "feat_3_title": "Edge Security",
-        "feat_3_desc": "Deployed on AWS Fargate with an Application Load Balancer, SSL certificates, and Cloudflare DNS protection.",
-        "feat_4_title": "Observability & APM",
-        "feat_4_desc": "Real-time Prometheus metrics exposition tracking request latency, status codes, and HTTP method distributions.",
-        "feat_5_title": "Network Resilience",
-        "feat_5_desc": "IdempotentRoute middleware backed by Redis caching guarantees financial operations are never duplicated during network retries.",
-        "footer_text": "Engineered for high availability. NexCore SaaS Architecture."
+        
+        "about_title": "More than an API. An Engine.",
+        "about_subtitle": "NexCore is not a simple CRUD application. It is a full-blown Multi-Tenant architecture designed to host thousands of independent businesses under a single codebase, guaranteeing absolute data isolation and zero downtime.",
+        "stat_1": "Physical Isolation",
+        "stat_2": "Global Latency",
+        "stat_3": "Duplicate Charges",
+
+        "deep_dive_title": "Engineering Deep Dive",
+        "feat_1_title": "Multi-Dimensional Database",
+        "feat_1_desc": "NexCore replaces standard row-level security with physical schema isolation. Global entities live in the `public` schema, while each client receives an isolated PostgreSQL schema generated dynamically via Alembic. Zero risk of data leakage.",
+        "feat_2_title": "Event-Driven Billing",
+        "feat_2_desc": "Fully asynchronous webhook architecture using Stripe. When an invoice fails or succeeds, NexCore updates tenant states instantly across global schemas and triggers Business Intelligence (BI) alerts via Discord.",
+        "feat_3_title": "Serverless Cloud Architecture",
+        "feat_3_desc": "Deployed natively on AWS ECS Fargate for infinite horizontal scaling. Fronted by an Application Load Balancer and Cloudflare DNS/WAF for DDos protection, edge caching, and strict SSL/TLS encryption.",
+        "feat_4_title": "Real-Time Observability",
+        "feat_4_desc": "Embedded Prometheus APM instrumentator exposing the `/metrics` endpoint. We track Python Garbage Collection, HTTP method distributions, and microsecond latencies to guarantee SLA compliances.",
+        "feat_5_title": "Network Resilience & Idempotency",
+        "feat_5_desc": "Financial operations are strictly idempotent. We implemented a custom FastAPI APIRoute middleware backed by Redis distributed locks. If a client retries a checkout due to network lag, Redis intercepts and serves the cached response in <5ms, preventing double charges.",
+        "feat_6_title": "Asynchronous Workers",
+        "feat_6_desc": "Heavy workloads (like massive S3 multipart media uploads or cascading soft deletes) are offloaded to background workers via RabbitMQ, ensuring the primary API never blocks.",
+        
+        "stack_title": "Powered by Modern Tech",
+        "cta_title": "Ready to see the code?",
+        "cta_desc": "Test the live Swagger UI or review the architecture documentation on GitHub.",
+        "cta_github": "View Source Code",
+        
+        "footer_text": "Architected and Developed by Caio Cerqueira. 2026."
     },
     "pt": {
-        "nav_features": "Funcionalidades",
-        "nav_architecture": "Arquitetura",
+        "nav_about": "O Motor",
+        "nav_deep_dive": "Arquitetura",
+        "nav_tech": "Stack de Tech",
         "nav_cta": "Explorar API Docs",
         "hero_badge": "v2.2.0 — Cloud Native API",
         "hero_title": "A espinha dorsal corporativa para <span>criadores de SaaS.</span>",
@@ -34,18 +51,33 @@ const translations = {
         "code_res_1": "✔ Tenant 'Acme Corp' provisionado com sucesso.",
         "code_res_2": "✔ Schema PostgreSQL 'tenant_acme' criado.",
         "code_res_3": "✔ Cliente Stripe & Faturamento inicializados.",
-        "features_title": "Arquitetado para Escalar.",
-        "feat_1_title": "Isolamento Físico de Dados",
-        "feat_1_desc": "Verdadeiro multi-tenancy. Cada cliente recebe seu próprio schema PostgreSQL dedicado, roteado dinamicamente via middleware.",
-        "feat_2_title": "Ciclo de Vida de Faturamento (Stripe)",
-        "feat_2_desc": "Integrações de webhook totalmente automatizadas gerenciando assinaturas, renovações e suspensões automáticas de tenants.",
-        "feat_3_title": "Segurança de Borda (Edge)",
-        "feat_3_desc": "Implantado no AWS Fargate com um Application Load Balancer, certificados SSL e proteção DNS do Cloudflare.",
-        "feat_4_title": "Observabilidade & APM",
-        "feat_4_desc": "Exposição de métricas do Prometheus em tempo real rastreando latência, códigos de status e métodos HTTP.",
-        "feat_5_title": "Resiliência de Rede",
-        "feat_5_desc": "Middleware IdempotentRoute apoiado por cache Redis garante que operações financeiras nunca sejam duplicadas em retentativas.",
-        "footer_text": "Projetado para alta disponibilidade. NexCore SaaS Architecture."
+        
+        "about_title": "Mais que uma API. Um Motor.",
+        "about_subtitle": "O NexCore não é uma aplicação CRUD simples. É uma arquitetura Multi-Tenant completa projetada para hospedar milhares de empresas independentes sob o mesmo código, garantindo isolamento absoluto de dados e zero downtime.",
+        "stat_1": "Isolamento Físico",
+        "stat_2": "Latência Global",
+        "stat_3": "Cobranças Duplicadas",
+
+        "deep_dive_title": "Deep Dive de Engenharia",
+        "feat_1_title": "Banco de Dados Multidimensional",
+        "feat_1_desc": "O NexCore substitui a segurança de nível de linha padrão pelo isolamento físico de schemas. Entidades globais viveem no schema `public`, enquanto cada cliente recebe um schema PostgreSQL isolado gerado dinamicamente via Alembic. Risco zero de vazamento de dados.",
+        "feat_2_title": "Faturamento Orientado a Eventos",
+        "feat_2_desc": "Arquitetura de webhooks totalmente assíncrona usando Stripe. Quando uma fatura falha ou tem sucesso, o NexCore atualiza os estados dos tenants instantaneamente e aciona alertas de Business Intelligence (BI) via Discord.",
+        "feat_3_title": "Arquitetura Cloud Serverless",
+        "feat_3_desc": "Implantado nativamente no AWS ECS Fargate para escalonamento horizontal infinito. Protegido por um Application Load Balancer e Cloudflare DNS/WAF contra DDoS, caching de borda e criptografia SSL/TLS estrita.",
+        "feat_4_title": "Observabilidade em Tempo Real",
+        "feat_4_desc": "Instrumentador APM do Prometheus embutido expondo o endpoint `/metrics`. Rastreamos Garbage Collection do Python, distribuições de métodos HTTP e latências em microssegundos para garantir conformidade de SLA.",
+        "feat_5_title": "Resiliência de Rede & Idempotência",
+        "feat_5_desc": "Operações financeiras são estritamente idempotentes. Implementamos um middleware customizado no FastAPI (APIRoute) com travas no Redis. Se um cliente tenta reenviar um checkout devido à rede lenta, o Redis barra e entrega o cache em <5ms, prevenindo cobranças duplas.",
+        "feat_6_title": "Workers Assíncronos",
+        "feat_6_desc": "Cargas de trabalho pesadas (como uploads multimídia massivos no S3 ou soft deletes em cascata) são descarregadas para workers em segundo plano via RabbitMQ, garantindo que a API principal nunca seja bloqueada.",
+        
+        "stack_title": "Desenvolvido com Alta Tecnologia",
+        "cta_title": "Pronto para ver o código?",
+        "cta_desc": "Teste o Swagger UI ao vivo ou revise a documentação da arquitetura no GitHub.",
+        "cta_github": "Ver Código Fonte",
+        
+        "footer_text": "Arquitetado e Desenvolvido por Caio Cerqueira. 2026."
     }
 };
 
@@ -71,19 +103,24 @@ langBtn.addEventListener("click", () => {
 });
 
 // Micro-animations for scroll
-const cards = document.querySelectorAll('.card');
+const animateElements = document.querySelectorAll('.card, .stat-card, .stack-item, .section-title, .section-subtitle');
+
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.style.opacity = 1;
-            entry.target.style.transform = 'translateY(0)';
+            entry.target.style.transform = 'translateY(0) scale(1)';
         }
     });
 }, { threshold: 0.1 });
 
-cards.forEach(card => {
-    card.style.opacity = 0;
-    card.style.transform = 'translateY(20px)';
-    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(card);
+animateElements.forEach(el => {
+    el.style.opacity = 0;
+    if (el.classList.contains('stack-item')) {
+        el.style.transform = 'scale(0.8)';
+    } else {
+        el.style.transform = 'translateY(30px)';
+    }
+    el.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+    observer.observe(el);
 });
