@@ -237,8 +237,9 @@ h1 span {
 }
 
 .card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
     border-color: var(--accent-primary);
+    box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.2);
 }
 
 .card-icon { font-size: 2rem; margin-bottom: 20px; }
