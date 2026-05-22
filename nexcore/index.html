@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCore SaaS | Premium API Infrastructure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+    <div class="ambient-glow-2"></div>
+
+    <nav>
+        <div class="logo">NexCore</div>
+        <div class="nav-links">
+            <a href="#features" data-i18n="nav_features">Features</a>
+            <a href="#architecture" data-i18n="nav_architecture">Architecture</a>
+            <button id="lang-toggle" class="lang-btn">PT-BR</button>
+        </div>
+        <a href="https://nexcore-api.ccerks.com/docs" target="_blank" class="btn-primary" data-i18n="nav_cta">Explore API Docs</a>
+    </nav>
+
+    <header>
+        <div class="badge" data-i18n="hero_badge">v2.1.1 — Cloud Native API</div>
+        <h1 data-i18n="hero_title">The enterprise backbone for <span>SaaS builders.</span></h1>
+        <p class="hero-desc" data-i18n="hero_desc">A highly scalable, multi-tenant B2B backend architecture built with FastAPI, PostgreSQL, and deployed on AWS ECS Fargate.</p>
+        
+        <div class="mockup-window">
+            <div class="mockup-header">
+                <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+            </div>
+            <div class="mockup-body">
+                <span class="gray" data-i18n="code_comment"># Create a new isolated tenant schema & setup billing</span><br>
+                curl -X POST "https://nexcore-api.ccerks.com/v1/tenants" \<br>
+                &nbsp;&nbsp;-H "Authorization: Bearer $SUPERADMIN_TOKEN" \<br>
+                &nbsp;&nbsp;-d '{"name": "Acme Corp", "slug": "acme"}'<br><br>
+                
+                <span class="green" data-i18n="code_res_1">✔ Tenant 'Acme Corp' provisioned successfully.</span><br>
+                <span class="green" data-i18n="code_res_2">✔ PostgreSQL schema 'tenant_acme' created.</span><br>
+                <span class="green" data-i18n="code_res_3">✔ Stripe Customer & Billing initialized.</span>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="features">
+        <h2 class="section-title" data-i18n="features_title">Architected for Scale.</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="card-icon">🗄️</div>
+                <h3 data-i18n="feat_1_title">Physical Data Isolation</h3>
+                <p data-i18n="feat_1_desc">True multi-tenancy. Every client gets their own dedicated PostgreSQL schema dynamically routed via middleware.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">💳</div>
+                <h3 data-i18n="feat_2_title">Stripe Billing Lifecycle</h3>
+                <p data-i18n="feat_2_desc">Fully automated webhook integrations handling subscriptions, renewals, and automated tenant suspensions.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🌩️</div>
+                <h3 data-i18n="feat_3_title">Edge Security</h3>
+                <p data-i18n="feat_3_desc">Deployed on AWS Fargate with an Application Load Balancer, SSL certificates, and Cloudflare DNS protection.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p data-i18n="footer_text">Engineered for high availability. NexCore SaaS Architecture.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
