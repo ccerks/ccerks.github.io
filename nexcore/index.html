@@ -25,7 +25,7 @@
     </nav>
 
     <header>
-        <div class="badge" data-i18n="hero_badge">v3.0.0 — Cloud Native API</div>
+        <div class="badge" data-i18n="hero_badge">v3.1.0 — Cloud Native API</div>
         <h1 data-i18n="hero_title">The enterprise backbone for <span>SaaS builders.</span></h1>
         <p class="hero-desc" data-i18n="hero_desc">A highly scalable, multi-tenant B2B backend architecture built with FastAPI, PostgreSQL, and deployed on AWS ECS Fargate.</p>
         
@@ -100,8 +100,8 @@
             </div>
             <div class="card detail-card">
                 <div class="card-icon">⚡</div>
-                <h3 data-i18n="feat_6_title">Asynchronous Workers</h3>
-                <p data-i18n="feat_6_desc">Heavy workloads (like massive S3 multipart media uploads or cascading soft deletes) are offloaded to background workers via RabbitMQ, ensuring the primary API never blocks.</p>
+                <h3 data-i18n="feat_6_title">Dedicated Background Workers</h3>
+                <p data-i18n="feat_6_desc">Heavy workloads (like S3 asset cleanup, Discord BI alerts, and Stripe billing events) are offloaded to a dedicated ECS Fargate Worker Service via CloudAMQP (RabbitMQ), ensuring the primary API never blocks.</p>
             </div>
         </div>
     </section>
@@ -122,6 +122,9 @@
             <div class="stack-item">AWS ALB & S3</div>
             <div class="stack-item">GitHub Actions CI/CD</div>
             <div class="stack-item">Stripe SDK</div>
+            <div class="stack-item">CloudAMQP</div>
+            <div class="stack-item">Cloudflare WAF</div>
+            <div class="stack-item">AWS SSM</div>
         </div>
     </section>
 
