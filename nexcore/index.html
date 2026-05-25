@@ -25,7 +25,7 @@
     </nav>
 
     <header>
-        <div class="badge" data-i18n="hero_badge">v3.1.0 — Cloud Native API</div>
+        <div class="badge" data-i18n="hero_badge" style="background: rgba(165,180,252,0.15); border-color: rgba(165,180,252,0.4); text-shadow: 0 0 8px rgba(165,180,252,0.5);">v3.1.1 — Universal Resolver + OpenAPI</div>
         <h1 data-i18n="hero_title">The enterprise backbone for <span>SaaS builders.</span></h1>
         <p class="hero-desc" data-i18n="hero_desc">A highly scalable, multi-tenant B2B backend architecture built with FastAPI, PostgreSQL, and deployed on AWS ECS Fargate.</p>
         
@@ -102,6 +102,16 @@
                 <div class="card-icon">⚡</div>
                 <h3 data-i18n="feat_6_title">Dedicated Background Workers</h3>
                 <p data-i18n="feat_6_desc">Heavy workloads (like S3 asset cleanup, Discord BI alerts, and Stripe billing events) are offloaded to a dedicated ECS Fargate Worker Service via CloudAMQP (RabbitMQ), ensuring the primary API never blocks.</p>
+            </div>
+            <div class="card detail-card">
+                <div class="card-icon">🎯</div>
+                <h3 data-i18n="feat_7_title">Universal Resolver Pattern</h3>
+                <p data-i18n="feat_7_desc">Clean Code architecture eliminates endpoint redundancy. A dynamic query routing strategy allows precise, collision-free resource lookups via UUID, numerical auto-increments, or exact SKUs dynamically.</p>
+            </div>
+            <div class="card detail-card">
+                <div class="card-icon">📖</div>
+                <h3 data-i18n="feat_8_title">Enterprise OpenAPI Swagger</h3>
+                <p data-i18n="feat_8_desc">Strict schema validations using Pydantic V2. Every API endpoint features exact HTTP status code mappings, precise error descriptions, and rich JSON payloads for seamless frontend integration.</p>
             </div>
         </div>
     </section>
